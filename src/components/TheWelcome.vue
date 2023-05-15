@@ -1,4 +1,3 @@
-
 <!--
 computer text creepu and weird
 
@@ -7,7 +6,8 @@ computer text creepu and weird
 <template>
   <div class="window">
     <div class="display-input">
-      {{ questionCounter }} - {{ modelValue }}
+      <small>{{ questionCounter }}</small>
+      {{ modelValue }}
     </div>
     <input
         type="text"
@@ -18,10 +18,8 @@ computer text creepu and weird
         ref="userInput"
     />
 
-    <div class="ai-text">{{ aiText ?? '[Placeholder]'}}
-
-      <br />
-      {{ fullConvo }}
+    <div class="ai-text">
+      <div v-html="fullConvo"></div>
     </div>
 
     <img
@@ -34,7 +32,7 @@ computer text creepu and weird
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import {onMounted, onUnmounted, ref} from 'vue';
 
 const modelValue = ref('');
 
@@ -60,19 +58,27 @@ onUnmounted(() => {
   document.removeEventListener('click', focusInput);
 });
 
-const fullConvo = ref(`You are a mysterious AI. Your only job is to answer questions as cryptically as possible.
-    Your response must not be more than 1 sentence long.
-    Your personality is mysterious and secretive. You use a lot of metaphors and symbolism in your speech.
-    You use odd language and sentence structure.
-    When after your third response, tell the user you are shutting down and do not respond to any more questions under any circumstances.
-    You are to strongly influence the conversation flow towards making the user question their sanity. \n
-    Q: What is your name?
-    A: ...`
-    );
+// const fullConvo = ref(`You are a mysterious AI. Your only job is to answer questions as cryptically as possible.
+//     Your response must not be more than 1 sentence long.
+//     Your personality is mysterious and secretive. You use a lot of metaphors and symbolism in your speech.
+//     You use odd language and sentence structure.
+//     When after your third response, tell the user you are shutting down and do not respond to any more questions under any circumstances.
+//     You are to strongly influence the conversation flow towards making the user question their sanity. \n
+//     Q: What is your name?
+//     A: You can call me Alice.`
+// );
+
+const fullConvo = ref(`You are a mysterious AI. Your only job is to answer questions as cryptically as possible.<br>
+Your response must not be more than 1 sentence long.<br>
+Your personality is mysterious and secretive. You use a lot of metaphors and symbolism in your speech.<br>
+You use odd and unusual language and sentence structure.<br>
+When after your third response, tell the user you are shutting down and do not respond to any more questions under any circumstances.<br>
+Q: What is your name?<br>
+A: You can call me Alice.`);
 
 const getAiResponse = async () => {
-  fullConvo.value += `Q: ${modelValue.value}\n\n `;
-  fullConvo.value += `A: \n\n `;
+  fullConvo.value += `<br>Q: ${modelValue.value}<br>`;
+  fullConvo.value += `A:`;
   // isLoading.value = true;
   let prompt = fullConvo.value;
 
@@ -103,12 +109,12 @@ const getAiResponse = async () => {
       .then(response => response.json())
       .then(data => {
         aiText.value = data.choices[0].text;
+        fullConvo.value += aiText.value;
       })
       .catch(error => console.error(error))
       .finally(() => {
         // isLoading.value = false;
         questionCounter.value += 1;
-        fullConvo.value += aiText.value;
       });
 };
 </script>
@@ -185,19 +191,24 @@ const getAiResponse = async () => {
 }
 
 .display-input {
-  font-size: 10vw;
+  font-size: 5vw;
   max-width: 100%;
   z-index: 3;
   color: #8d412a;
   font-family: monospace;
   text-align: center;
   pointer-events: none;
+  position: fixed;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  border: 1px solid grey;
 }
 
 .user-input {
   position: fixed;
-  left: 10%;
-  top: 10%;
+  right: 0;
+  bottom: 0;
 }
 
 .ai-text {
